@@ -10,6 +10,7 @@ from discord_components import (
 from utils.mongo import guild_settings
 
 
+
 class Cogs(commands.Cog):
 
     def __init__(self, client):
@@ -20,7 +21,7 @@ class Cogs(commands.Cog):
         await guild_settings.insert_one(
             {"_id": int(guild.id), "settings": {"logger": {"status": "disable", "channelid": "None"},
                                                 "audit": {"status": "disable", "channelid": "None"},
-                                                "invite": {"status": "disable", "role1": "None"},
+                                                "invite": {"status": "disable", "role1": "None", "channelid": "None"},
                                                 "language": "english", "team role": "None"}})
         return
 
@@ -30,6 +31,7 @@ class Cogs(commands.Cog):
         return
 
     @commands.command()
+    @commands.guild_only()
     async def settings(self, message):
         settings = await guild_settings.find_one({"_id": int(message.guild.id)})
         language = settings["settings"]["language"]
@@ -39,6 +41,7 @@ class Cogs(commands.Cog):
         logger_channel = settings["settings"]["logger"]["channelid"]
         invite_status = settings["settings"]["invite"]["status"]
         invite_role = settings["settings"]["invite"]["role1"]
+        invite_channel = settings["settings"]["invite"]["channelid"]
         team_role = settings["settings"]["team role"]
         if language == "german":
             if message.author.guild_permissions.administrator:
@@ -50,7 +53,8 @@ class Cogs(commands.Cog):
                 embed.add_field(name="Message Logger",
                                 value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
                 embed.add_field(name="Invite Deleter",
-                                value=f"```{invite_status}``` **Role:** <@&{invite_role}>", inline=True)
+                                value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                inline=True)
                 embed.add_field(name="Team role", value=f"```<@&{team_role}>```", inline=True)
                 embed.timestamp = datetime.datetime.now()
                 embed.set_footer(text=f"Settings von {message.guild.name}", icon_url=message.guild.icon_url)
@@ -128,8 +132,13 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
-                                settings["settings"]["logger"]["channelid"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["logger"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+
+                                if channel is None:
+                                    await message.send("Diesen Channel gibt es nicht")
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Audit Logger Settings", options=[
@@ -151,13 +160,19 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
-                                settings["settings"]["audit"]["channelid"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["audit"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if channel is None:
+                                    await message.send("Diesen Channel gibt es nicht")
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings", options=[
                                     SelectOption(label="Enable", value="Aktiviert den Invite Deleter"),
                                     SelectOption(label="Disable", value="Deaktiviert den Invite Deleter"),
+                                    SelectOption(label="Report Channel",
+                                                 value="Der Channel in den die Person die eigenwerbung macht gereportet wird"),
                                     SelectOption(label="Ignored Role",
                                                  value="Wähle aus welche Rolle vom  löschen der Invites ignoriert werden soll")])])
                             interaction2 = await self.client.wait_for("select_option")
@@ -174,13 +189,38 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                settings["settings"]["invite"]["role1"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                role = discord.utils.get(message.guild.roles, id=msg2.content)
+                                if role is not None:
+                                    settings["settings"]["invite"]["role1"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if role is None:
+                                    await message.send("Diese Rolle gibt es nicht!")
+
+                            if interaction2.component[0].label == "Report Channel":
+                                await message.send("Bitte schicke die Channel ID hier rein")
+
+                                def check2(m):
+                                    return m.channel == channel and m.content and m.author == message.author
+
+                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["invite"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if channel is None:
+                                    await message.send("Diesen Channel gibt es nicht!")
                         if interaction.component[0].label == "Team Role":
                             def check2(m):
                                 return m.channel == channel and m.content and m.author == message.author
-                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+
                             await message.send("Bitte schicke die Role id hier in den Chat")
+                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+                            if channel is not None:
+                                settings["settings"]["invite"]["role1"] = msg2.content
+                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                            if channel is None:
+                                await message.send("Diese Rolle gibt es nicht")
                             settings["settings"]["team role"] = msg2.content
                             await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
 
@@ -209,6 +249,7 @@ class Cogs(commands.Cog):
                 embed.set_footer(text=f"Settings of {message.guild.name}", icon_url=message.guild.icon_url)
                 m = await message.send(embed=embed)
                 channel = message.channel
+
                 def check1(m):
                     return m.channel == channel and m.content and m.author == message.author
 
@@ -282,8 +323,12 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                settings["settings"]["logger"]["channelid"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["logger"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if channel is None:
+                                    await message.send("This Channel doesn't exist")
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed,
                                                components=[Select(placeholder="Audit Logger Settings",
@@ -309,8 +354,12 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                settings["settings"]["audit"]["channelid"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["audit"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if channel is None:
+                                    await message.send("This Channel doesn't exist")
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings",
@@ -336,14 +385,38 @@ class Cogs(commands.Cog):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                settings["settings"]["invite"]["role1"] = msg2.content
-                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["invite"]["role1"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                if channel is None:
+                                    await message.send("This Role doesn’t exist")
+                            if interaction2.component[0].label == "Report Channel":
+                                await message.send("Bitte schicke die Channel ID hier rein")
+
+                                def check2(m):
+                                    return m.channel == channel and m.content and m.author == message.author
+
+                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+
+                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                if channel is not None:
+                                    settings["settings"]["invite"]["channelid"] = msg2.content
+                                    await guild_settings.update_one({"_id": int(message.guild.id)},
+                                                                    {'$set': settings})
+                                    if channel is None:
+                                        await message.send("Diesen Channel gibt es nicht!")
                         if interaction.component[0].label == "Team Role":
                             def check2(m):
                                 return m.channel == channel and m.content and m.author == message.author
 
-                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
                             await message.send("Pls enter the Role ID of the Server Team Role")
+                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+                            if channel is not None:
+                                settings["settings"]["invite"]["role1"] = msg2.content
+                                await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                            if channel is None:
+                                await message.send("This Role doesn’t exist")
                             settings["settings"]["team role"] = msg2.content
                             await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
 
@@ -351,7 +424,7 @@ class Cogs(commands.Cog):
                         await message.reinvoke(restart=True)
             if not message.author.guild_permissions.administrator:
                 await message.send("You dont't have enough Permissions to do this command\n"
-                                       "```Required Permissions: Adminstator```")
+                                   "```Required Permissions: Adminstator```")
 
 
 def setup(client):
