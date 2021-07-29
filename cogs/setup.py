@@ -40,7 +40,6 @@ class Cogs(commands.Cog):
         invite_status = settings["settings"]["invite"]["status"]
         invite_role = settings["settings"]["invite"]["role1"]
         team_role = settings["settings"]["team role"]
-        update = settings["settings"]
         if language == "german":
             if message.author.guild_permissions.administrator:
                 embed = discord.Embed(title="Settings",
