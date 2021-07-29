@@ -1,16 +1,8 @@
 import discord
 from discord.ext import commands
-import asyncio
 import datetime
-from discord_components import (
-    DiscordComponents,
-    Button,
-    ButtonStyle,
-    Select,
-    SelectOption)
 import random
 from utils.mongo import cluster, db, guild_settings
-import motor.motor_asyncio
 
 class Cogs(commands.Cog):
 
