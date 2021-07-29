@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import asyncio
-import json
 import datetime
 from discord_components import (
     DiscordComponents,
@@ -12,12 +11,6 @@ from discord_components import (
 import random
 from utils.mongo import cluster, db, guild_settings
 import motor.motor_asyncio
-
-
-with open("setup.json", "r") as file:
-    data = json.load(file)
-
-
 
 class Cogs(commands.Cog):
 
