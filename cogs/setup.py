@@ -7,8 +7,7 @@ from discord_components import (
     ButtonStyle,
     Select,
     SelectOption)
-from utils.mongo import cluster, db, guild_settings
-import motor.motor_asyncio
+from utils.mongo import guild_settings
 
 
 class Cogs(commands.Cog):
