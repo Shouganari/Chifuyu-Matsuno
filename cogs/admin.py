@@ -419,8 +419,9 @@ class Cogs(commands.Cog):
     async def unban(self, message, args1: discord.User):
         button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
         button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
-        language = data[str(message.guild.id)]["language"]
-        team_id = data[str(message.guild.id)]["team role"]
+        settings = await guild_settings.find_one({"_id": int(message.guild.id)})
+        language = settings["settings"]["language"]
+        team_id = settings["settings"]["team role"]
         if not team_id == "None":
             team_role = discord.utils.get(message.guild.roles, id=team_id)
             if language == "german":
