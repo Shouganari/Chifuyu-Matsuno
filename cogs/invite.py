@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import asyncio
 import datetime
 from utils.mongo import guild_settings
 
