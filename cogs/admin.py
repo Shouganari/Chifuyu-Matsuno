@@ -1,5 +1,5 @@
 import asyncio
-from discord.ext import commands, tasks
+from discord.ext import commands
 import discord
 import datetime
 from discord_components import (
@@ -8,13 +8,7 @@ from discord_components import (
     ButtonStyle,
     Select,
     SelectOption)
-import json
-from utils.mongo import cluster, db, guild_settings
-import motor.motor_asyncio
-
-with open("./setup.json", "r") as file:
-    data = json.load(file)
-
+from utils.mongo import guild_settings
 
 class Cogs(commands.Cog):
 
