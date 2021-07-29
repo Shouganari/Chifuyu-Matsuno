@@ -237,7 +237,6 @@ class Cogs(commands.Cog):
                 embed.set_footer(text=f"Settings of {message.guild.name}", icon_url=message.guild.icon_url)
                 m = await message.send(embed=embed)
                 channel = message.channel
-
                 def check1(m):
                     return m.channel == channel and m.content and m.author == message.author
 
@@ -397,8 +396,8 @@ class Cogs(commands.Cog):
                             await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
                             await message.send(embed=embed2)
 
-                if not message.author.guild_permissions.administrator:
-                    await message.send("You dont't have enough Permissions to do this command\n"
+            if not message.author.guild_permissions.administrator:
+                await message.send("You dont't have enough Permissions to do this command\n"
                                        "```Required Permissions: Adminstator```")
 
 
