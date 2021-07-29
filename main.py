@@ -4,8 +4,6 @@ import json
 import os
 import asyncio
 from discord_components import DiscordComponents
-import motor.motor_asyncio
-from utils.mongo import db, guild_settings
 
 
 with open("config.json", "r") as f:
