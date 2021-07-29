@@ -11,9 +11,6 @@ import json
 from utils.mongo import cluster, db, guild_settings
 import motor.motor_asyncio
 
-with open("./setup.json", "r") as f:
-    data = json.load(f)
-
 
 class Cogs(commands.Cog):
 
@@ -134,8 +131,6 @@ class Cogs(commands.Cog):
                                 await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                with open("./setup.json", "w") as file:
-                                    json.dump(data, file)
                                 await message.send(embed=embed2)
                             if interaction2.component[0].label == "Channel":
                                 await channel.purge(limit=1)
