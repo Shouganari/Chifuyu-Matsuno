@@ -100,10 +100,6 @@ class Commands(commands.Cog, name="Commands"):
                          url="https://discord.com/api/oauth2/authorize?client_id=867108673146847272&permissions=8&scope=bot",
                          label="Invite")]
         embed = discord.Embed(title=f"Info about Chifuyu Matsuno")
-        embed.add_field(
-            name="Latest Updates",
-            value="Vote Now at [top.gg](https://top.gg/bot/756257170521063444/vote)",
-            inline=False)
         pid = psutil.Process(os.getpid())
         used = pid.memory_info().rss / 1024 ** 2
         total = psutil.virtual_memory().total / 1024 ** 2
