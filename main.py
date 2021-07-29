@@ -1,11 +1,13 @@
+import asyncio
 import datetime
-import random
-import discord
-from discord.ext import commands
 import json
 import os
-import asyncio
+import random
+
+import discord
+from discord.ext import commands
 from discord_components import DiscordComponents, Button, ButtonStyle
+
 from utils.mongo import guild_settings
 
 with open("config.json", "r") as f:
@@ -19,16 +21,12 @@ client.remove_command("help")
 
 @client.event
 async def on_ready():
+    DiscordComponents(client)
     print("Bot on")
     presence = ["ch!", "ch!help", "Owner Yuutokata"]
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=random.choice(presence)))
+    await client.change_presence(
+        activity=discord.Activity(type=discord.ActivityType.listening, name=random.choice(presence)))
     await asyncio.sleep(60)
-    DiscordComponents(client)
-
-
-# @client.event
-# async def on_command_error():
-#   await message.send("Test")
 
 
 @client.group(invoke_command=True)
@@ -49,7 +47,7 @@ async def help(message):
             embed = discord.Embed(title="Help")
             embed.add_field(name="Commands:", value=f"**{prefix}help**\n"
                                                     f"Shows this Command\n\r"
-                                                    f"**{prefix}info**\n"
+                                                    f"**{prefix}about**\n"
                                                     f"Shows Informations about the Bot\n\r"
                                                     f"**{prefix}code**\n"
                                                     f"You can see the Source Code of Bot\n\r"
@@ -259,13 +257,6 @@ async def help(message):
             if res.component.label == "🗑":
                 await message.channel.purge(limit=2)
                 return
-
-@client.command()
-async def test(message, args1):
-    channel = discord.utils.get(message.guild.text_channels, id=args1)
-    await message.send(f"Channel set to <#{args1}>")
-    if channel is None:
-        await message.send("This Channel doesnt exists")
 
 
 @client.command()
