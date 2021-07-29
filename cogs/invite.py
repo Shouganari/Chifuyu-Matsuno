@@ -1,9 +1,12 @@
+import datetime
+
 import discord
 from discord.ext import commands
-import datetime
+
 from utils.mongo import guild_settings
 
-class Cogs(commands.Cog):
+
+class Invite(commands.Cog, name="Invite"):
 
     def __init__(self, client):
         self.client = client
@@ -76,4 +79,4 @@ class Cogs(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Cogs(client))
+    client.add_cog(Invite(client))
