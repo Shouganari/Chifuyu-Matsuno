@@ -7,7 +7,6 @@ from discord_components import (
     ButtonStyle,
     Select,
     SelectOption)
-import json
 from utils.mongo import cluster, db, guild_settings
 import motor.motor_asyncio
 
