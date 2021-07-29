@@ -1,15 +1,19 @@
-import discord
-from discord.ext import commands
 import datetime
 import random
+
+import discord
+from discord.ext import commands
+
 from utils.mongo import guild_settings
 
-class Cogs(commands.Cog):
+
+class Fun(commands.Cog, name="Fun"):
 
     def __init__(self, client):
         self.client = client
 
     @commands.command()
+    @commands.guild_only()
     async def avatar(self, message, args1: discord.Member):
         embed = discord.Embed(title=f"{args1.name}'s Avatar", color=discord.Color.blue())
         embed.timestamp = datetime.datetime.now()
@@ -17,6 +21,7 @@ class Cogs(commands.Cog):
         await message.send(embed=embed)
 
     @commands.command(aliases=["topic"])
+    @commands.guild_only()
     async def thema(self, message):
         settings = await guild_settings.find_one({"_id": int(message.guild.id)})
         language = settings["settings"]["language"]
@@ -82,6 +87,20 @@ class Cogs(commands.Cog):
                                                                                          f"{random.choice(en)}")
             await message.send(embed=embed)
 
+    @commands.command()
+    async def question(self, message):
+        settings = await guild_settings.find_one({"_id": int(message.guild.id)})
+        language = settings["settings"]["language"]
+        answerde = ["Ja", "Nein"]
+        answeren = ["Yes", "No"]
+        if message.guild is None:
+            await message.send(f"The answer to you question is **{random.choice(answeren)}**")
+        if message.guild is not None:
+            if language == "german":
+                await message.send(f"Die antwort zu deiner Frage ist **{random.choice(answerde)}**")
+            if language == "english":
+                await message.send(f"The answer to you question is **{random.choice(answeren)}**")
+
 
 def setup(client):
-    client.add_cog(Cogs(client))
+    client.add_cog(Fun(client))
