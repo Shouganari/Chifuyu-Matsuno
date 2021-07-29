@@ -60,7 +60,7 @@ class Cogs(commands.Cog):
                 def check1(m):
                     return m.channel == channel and m.content and m.author == message.author
 
-                msg = await self.client.wait_for('message', check=check1)
+                msg = await self.client.wait_for('message', check=check1, timeout=120)
                 if message.author.id == msg.author.id:
                     if msg.content == "edit":
                         embed2 = discord.Embed(title="Settings")
@@ -102,15 +102,11 @@ class Cogs(commands.Cog):
                                     SelectOption(label="English", value="Set the Language to English")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "German":
-                                await channel.purge(limit=1)
                                 settings["settings"]["language"] = "german"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "English":
-                                await channel.purge(limit=1)
                                 settings["settings"]["language"] = "english"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Message Logger":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Message Logger Settings", options=[
@@ -120,17 +116,12 @@ class Cogs(commands.Cog):
                                                  value="Wähle aus in welchen Channel die Nachrichten geloggt werden sollen")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Disable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Channel":
-                                await channel.purge(limit=1)
                                 await message.send("Bitte schicke die Channel ID hier rein")
 
                                 def check2(m):
@@ -139,7 +130,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
                                 settings["settings"]["logger"]["channelid"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Audit Logger Settings", options=[
@@ -149,17 +139,12 @@ class Cogs(commands.Cog):
                                                  value="Wähle aus in welchen Channel der Audit geloggt werden sollen")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["audit"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Disable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Channel":
-                                await channel.purge(limit=1)
                                 await message.send("Bitte schicke die Channel ID hier rein")
 
                                 def check2(m):
@@ -168,7 +153,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
                                 settings["settings"]["audit"]["channelid"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings", options=[
@@ -178,17 +162,12 @@ class Cogs(commands.Cog):
                                                  value="Wähle aus welche Rolle vom  löschen der Invites ignoriert werden soll")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["invite"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Disable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["invite"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Ignored Role":
-                                await channel.purge(limit=1)
                                 await message.send("Bitte schicke die Role ID hier rein")
 
                                 def check2(m):
@@ -197,7 +176,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
                                 settings["settings"]["invite"]["role1"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Team Role":
                             def check2(m):
                                 return m.channel == channel and m.content and m.author == message.author
@@ -205,7 +183,9 @@ class Cogs(commands.Cog):
                             await message.send("Bitte schicke die Role id hier in den Chat")
                             settings["settings"]["team role"] = msg2.content
                             await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                            await message.send(embed=embed2)
+
+                        await message.channel.purge(limit=1)
+                        await message.reinvoke(restart=True)
 
             if not message.author.guild_permissions.administrator:
                 await message.send("Du hast nicht genug Berechtigungen für diesen Command\n"
@@ -274,15 +254,11 @@ class Cogs(commands.Cog):
                                     SelectOption(label="English", value="Set Language to English")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "German":
-                                await channel.purge(limit=1)
                                 settings["settings"]["language"] = "german"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "English":
-                                await channel.purge(limit=1)
                                 settings["settings"]["language"] = "english"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Message Logger":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Message Logger Settings",
@@ -294,17 +270,12 @@ class Cogs(commands.Cog):
                                                         value="Select where the Message get Logged")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Disable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["logger"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Channel":
-                                await channel.purge(limit=1)
                                 await message.send("Pls enter the Channel ID")
 
                                 def check2(m):
@@ -313,7 +284,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
                                 settings["settings"]["logger"]["channelid"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed,
                                                components=[Select(placeholder="Audit Logger Settings",
@@ -327,17 +297,12 @@ class Cogs(commands.Cog):
                                                                                value="Select where the Audit get logged")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["audit"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Disable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["audit"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Channel":
-                                await channel.purge(limit=1)
                                 await message.send("Pls enter the Channel ID")
 
                                 def check2(m):
@@ -346,7 +311,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
                                 settings["settings"]["audit"]["channelid"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings",
@@ -358,7 +322,6 @@ class Cogs(commands.Cog):
                                                         value="Select the Role who can send Links")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
-                                await channel.purge(limit=1)
                                 settings["settings"]["invite"]["status"] = "enable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
                                 await message.send(embed=embed2)
@@ -366,9 +329,7 @@ class Cogs(commands.Cog):
                                 await channel.purge(limit=1)
                                 settings["settings"]["invite"]["status"] = "disable"
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                             if interaction2.component[0].label == "Ignored Role":
-                                await channel.purge(limit=1)
                                 await message.send("Pls enter the Role ID")
 
                                 def check2(m):
@@ -377,7 +338,6 @@ class Cogs(commands.Cog):
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
                                 settings["settings"]["invite"]["role1"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                await message.send(embed=embed2)
                         if interaction.component[0].label == "Team Role":
                             def check2(m):
                                 return m.channel == channel and m.content and m.author == message.author
@@ -386,8 +346,9 @@ class Cogs(commands.Cog):
                             await message.send("Pls enter the Role ID of the Server Team Role")
                             settings["settings"]["team role"] = msg2.content
                             await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                            await message.send(embed=embed2)
 
+                        await message.channel.purge(limit=1)
+                        await message.reinvoke(restart=True)
             if not message.author.guild_permissions.administrator:
                 await message.send("You dont't have enough Permissions to do this command\n"
                                        "```Required Permissions: Adminstator```")
