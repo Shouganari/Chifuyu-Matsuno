@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import datetime
 import random
-from utils.mongo import cluster, db, guild_settings
+from utils.mongo import guild_settings
 
 class Cogs(commands.Cog):
 
