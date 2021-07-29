@@ -9,6 +9,8 @@ from discord_components import (
     Select,
     SelectOption)
 import json
+from utils.mongo import cluster, db, guild_settings
+import motor.motor_asyncio
 
 with open("./setup.json", "r") as file:
     data = json.load(file)
@@ -21,8 +23,9 @@ class Cogs(commands.Cog):
 
     @commands.command(aliases=["purge"])
     async def clear(self, message, num: int, user: discord.User = None):
-        language = data[str(message.guild.id)]["language"]
-        team_id = data[str(message.guild.id)]["team role"]
+        settings = await guild_settings.find_one({"_id": int(message.guild.id)})
+        language = settings["settings"]["language"]
+        team_id = settings["settings"]["team role"]
         if not team_id == "None":
             team_role = discord.utils.get(message.guild.roles, id=team_id)
             if language == "german":
@@ -73,8 +76,9 @@ class Cogs(commands.Cog):
     async def ban(self, message, args1: discord.Member, *, reason):
         button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
         button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
-        language = data[str(message.guild.id)]["language"]
-        team_id = data[str(message.guild.id)]["team role"]
+        settings = await guild_settings.find_one({"_id": int(message.guild.id)})
+        language = settings["settings"]["language"]
+        team_id = settings["settings"]["team role"]
         if not team_id == "None":
             team_role = discord.utils.get(message.guild.roles, id=team_id)
             if language == "german":
@@ -255,8 +259,9 @@ class Cogs(commands.Cog):
         async def kick(self, message, args1: discord.Member, *, reason):
             button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
             button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
-            language = data[str(message.guild.id)]["language"]
-            team_id = data[str(message.guild.id)]["team role"]
+            settings = await guild_settings.find_one({"_id": int(message.guild.id)})
+            language = settings["settings"]["language"]
+            team_id = settings["settings"]["team role"]
             if not team_id == "None":
                 team_role = discord.utils.get(message.guild.roles, id=team_id)
                 if language == "german":
