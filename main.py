@@ -4,6 +4,9 @@ import json
 import os
 import asyncio
 from discord_components import DiscordComponents
+import motor.motor_asyncio
+from utils.mongo import db, guild_settings
+
 
 with open("config.json", "r") as f:
     config = json.load(f)
@@ -17,6 +20,7 @@ client = commands.Bot(command_prefix="ch!", intents=intents, activity=activity, 
 async def on_ready():
     print("Bot on")
     DiscordComponents(client)
+
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
