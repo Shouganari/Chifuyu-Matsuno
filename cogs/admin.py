@@ -1,21 +1,22 @@
 import asyncio
-from discord.ext import commands
-import discord
 import datetime
+
+import discord
+from discord.ext import commands
 from discord_components import (
-    DiscordComponents,
     Button,
-    ButtonStyle,
-    Select,
-    SelectOption)
+    ButtonStyle)
+
 from utils.mongo import guild_settings
 
-class Cogs(commands.Cog):
+
+class Admin(commands.Cog, name="Admin"):
 
     def __init__(self, client):
         self.client = client
 
     @commands.command(aliases=["purge"])
+    @commands.guild_only()
     async def clear(self, message, num: int, user: discord.User = None):
         settings = await guild_settings.find_one({"_id": int(message.guild.id)})
         language = settings["settings"]["language"]
@@ -65,8 +66,8 @@ class Cogs(commands.Cog):
                     await message.channel.purge(limit=num, check=check_func)
                     await message.send(f'{num} messages deleted', delete_after=5)
 
-
     @commands.command()
+    @commands.guild_only()
     async def ban(self, message, args1: discord.Member, *, reason):
         button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
         button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
@@ -78,29 +79,32 @@ class Cogs(commands.Cog):
             if language == "german":
                 if message.author.guild_permissions.ban_members or message.autor in team_role.members:
                     if not message.author.id == args1.id:
-                        m = await message.send(f"Bist du dir sicher das du {args1} bannen willst für {reason}?", components=[button2])
+                        m = await message.send(f"Bist du dir sicher das du {args1} bannen willst für {reason}?",
+                                               components=[button2])
                         res = await self.client.wait_for('button_click')
                         if res.component.label == "Ja":
                             await message.delete(m)
                             target = await self.client.fetch_user(args1.id)
                             dm = await target.create_dm()
                             embedm = discord.Embed(
-                                    title="Bann",
-                                    description=f"Du wurdest von {message.guild.name} gebannt",
-                                    color=discord.Color.red())
+                                title="Bann",
+                                description=f"Du wurdest von {message.guild.name} gebannt",
+                                color=discord.Color.red())
                             embedm.add_field(name="Gebannt von", value=message.author, inline=True)
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
-                                    title="Ban",
-                                    color=discord.Color.blue())
+                                title="Ban",
+                                color=discord.Color.blue())
                             embed.add_field(name="Gebannte Person", value=args1.mention, inline=True)
                             embed.add_field(name="Gebannt von", value=message.author.mention, inline=True)
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
+                            embed.set_footer(text="Shouganari ©")
                             await message.send(embed=embed)
                             await message.guild.ban(args1, reason=reason)
                             await message.send("Ban completed", delete_after=5)
@@ -116,7 +120,7 @@ class Cogs(commands.Cog):
                         return
                 if not message.author.guild_permissions.ban_members and not message.author in team_role.members:
                     await message.send("Du hast nicht genug **Berechtigungen** für diesen Command\n"
-                                           "```Benötigte Permissions = Ban Members```")
+                                       "```Benötigte Permissions = Ban Members```")
 
             if language == "english":
                 if message.author.guild_permissions.ban_members or message.autor in team_role.members:
@@ -136,6 +140,7 @@ class Cogs(commands.Cog):
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
                                 title="Ban",
@@ -145,6 +150,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
+                            embed.set_footer(text="Shouganari ©")
                             await message.send(embed=embed)
                             await message.guild.ban(args1, reason=reason)
                             await message.send("Ban completed", delete_after=5)
@@ -166,29 +172,32 @@ class Cogs(commands.Cog):
             if language == "german":
                 if message.author.guild_permissions.ban_members:
                     if not message.author.id == args1.id:
-                        m = await message.send(f"Bist du dir sicher das du {args1} bannen willst für {reason}?", components=[button2])
+                        m = await message.send(f"Bist du dir sicher das du {args1} bannen willst für {reason}?",
+                                               components=[button2])
                         res = await self.client.wait_for('button_click')
                         if res.component.label == "Ja":
                             await message.delete(m)
                             target = await self.client.fetch_user(args1.id)
                             dm = await target.create_dm()
                             embedm = discord.Embed(
-                                    title="Bann",
-                                    description=f"Du wurdest von {message.guild.name} gebannt",
-                                    color=discord.Color.red())
+                                title="Bann",
+                                description=f"Du wurdest von {message.guild.name} gebannt",
+                                color=discord.Color.red())
                             embedm.add_field(name="Gebannt von", value=message.author, inline=True)
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
-                                    title="Ban",
-                                    color=discord.Color.blue())
+                                title="Ban",
+                                color=discord.Color.blue())
                             embed.add_field(name="Gebannte Person", value=args1.mention, inline=True)
                             embed.add_field(name="Gebannt von", value=message.author.mention, inline=True)
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
+                            embed.set_footer(text="Shouganari ©")
                             await message.send(embed=embed)
                             await message.guild.ban(args1, reason=reason)
                             await message.send("Ban completed", delete_after=5)
@@ -202,7 +211,7 @@ class Cogs(commands.Cog):
                     if message.author.id == args1.id:
                         await message.send("Du kannst dich nicht selbst bannen")
                         return
-                if not message.author.guild_permissions.ban_members :
+                if not message.author.guild_permissions.ban_members:
                     await message.send("Du hast nicht genug **Berechtigungen** für diesen Command\n"
                                        "```Benötigte Permissions = Ban Members```")
 
@@ -224,6 +233,7 @@ class Cogs(commands.Cog):
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
                                 title="Ban",
@@ -233,6 +243,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
+                            embed.set_footer(text="Shouganari ©")
                             await message.send(embed=embed)
                             await message.guild.ban(args1, reason=reason)
                             await message.send("Ban completed", delete_after=5)
@@ -250,6 +261,7 @@ class Cogs(commands.Cog):
                                        "````Required Permissions = Ban Members```")
 
         @commands.command()
+        @commands.guild_only()
         async def kick(self, message, args1: discord.Member, *, reason):
             button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
             button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
@@ -275,6 +287,7 @@ class Cogs(commands.Cog):
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
                                 title="Kicked",
@@ -284,6 +297,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
+                            embed.set_footer(text="Shouganari ©")
                             await message.send(embed=embed)
                             await message.guild.kick(args1, reason=reason)
                             await message.send("Kick completed", delete_after=5)
@@ -314,6 +328,7 @@ class Cogs(commands.Cog):
                             embedm.add_field(name="Reason", value=reason, inline=True)
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
+                            embedm.set_footer(text="Shouganari ©")
                             await dm.send(embed=embedm)
                             embed = discord.Embed(
                                 title="Kicked",
@@ -322,6 +337,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Kicked by", value=message.author.mention, inline=True)
                             embed.add_field(name="Reason", value=reason, inline=False)
                             embed.set_thumbnail(url=target.avatar_url)
+                            embed.set_footer(text="Shouganari ©")
                             embed.timestamp = datetime.datetime.now()
                             await message.send(embed=embed)
                             await message.guild.kick(args1, reason=reason)
@@ -339,7 +355,8 @@ class Cogs(commands.Cog):
             if team_id == "None":
                 if language == "german":
                     if message.author.guild_permissions.kick_members:
-                        m = await message.send(f"Bist du dir sicher das du {args1} kicken willst für {reason}?", components=[button2])
+                        m = await message.send(f"Bist du dir sicher das du {args1} kicken willst für {reason}?",
+                                               components=[button2])
                         res = await self.client.wait_for('button_click')
                         if res.component.label == "Ja":
                             await message.delete(m)
@@ -351,6 +368,7 @@ class Cogs(commands.Cog):
                                 color=discord.Color.red())
                             embedm.add_field(name="Kicked by", value=message.author, inline=True)
                             embedm.add_field(name="Reason", value=reason, inline=True)
+                            embedm.set_footer(text="Shouganari ©")
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
                             await dm.send(embed=embedm)
@@ -360,6 +378,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Kicked Person", value=args1.mention, inline=True)
                             embed.add_field(name="Kicked by", value=message.author.mention, inline=True)
                             embed.add_field(name="Reason", value=reason, inline=False)
+                            embed.set_footer(text="Shouganari ©")
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
                             await message.send(embed=embed)
@@ -389,6 +408,7 @@ class Cogs(commands.Cog):
                                 color=discord.Color.red())
                             embedm.add_field(name="Kicked by", value=message.author, inline=True)
                             embedm.add_field(name="Reason", value=reason, inline=True)
+                            embedm.set_footer(text="Shouganari ©")
                             embedm.timestamp = datetime.datetime.now()
                             embedm.set_image(url=target.avatar_url)
                             await dm.send(embed=embedm)
@@ -398,6 +418,7 @@ class Cogs(commands.Cog):
                             embed.add_field(name="Kicked Person", value=args1.mention, inline=True)
                             embed.add_field(name="Kicked by", value=message.author.mention, inline=True)
                             embed.add_field(name="Reason", value=reason, inline=False)
+                            embed.set_footer(text="Shouganari ©")
                             embed.set_thumbnail(url=target.avatar_url)
                             embed.timestamp = datetime.datetime.now()
                             await message.send(embed=embed)
@@ -413,9 +434,8 @@ class Cogs(commands.Cog):
                         await message.send("You don't have enough **Permissons** for this Command\n"
                                            "```Required Permissions = Kick Members```")
 
-
-
     @commands.command()
+    @commands.guild_only()
     async def unban(self, message, args1: discord.User):
         button1 = [[Button(style=ButtonStyle.green, label="Yes"), Button(style=ButtonStyle.red, label="No")]]
         button2 = [[Button(style=ButtonStyle.green, label="Ja"), Button(style=ButtonStyle.red, label="Nein")]]
@@ -427,12 +447,14 @@ class Cogs(commands.Cog):
             if language == "german":
                 if message.author.guild_permissions.ban_members or message.author in team_role.members:
                     res = await self.client.wait_for('button_click')
-                    m = await message.send(f"Bist du dir sicher das du {args1.name} entbannen willst?", components=button2)
+                    m = await message.send(f"Bist du dir sicher das du {args1.name} entbannen willst?",
+                                           components=button2)
                     if res.component.label == "Ja":
                         await message.delete(m)
                         embed = discord.Embed(title="Unbanned", color=discord.Color.green())
                         embed.add_field(name="Unbanned Person", value=f"{args1.name} | {args1.id}", inline=True)
                         embed.add_field(name="Unbanned by", value=message.author.mention, inline=True)
+                        embed.set_footer(text="Shouganari ©")
                         await message.guild.unban(args1)
                         await message.send(embed=embed)
                     if res.component.label == "Nein":
@@ -453,6 +475,7 @@ class Cogs(commands.Cog):
                         embed = discord.Embed(title="Unbanned", color=discord.Color.green())
                         embed.add_field(name="Unbanned Person", value=f"{args1.name} | {args1.id}", inline=True)
                         embed.add_field(name="Unbanned by", value=message.author.mention, inline=True)
+                        embed.set_footer(text="Shouganari ©")
                         await message.guild.unban(args1)
                         await message.send(embed=embed)
                     if res.component.label == "No":
@@ -469,12 +492,14 @@ class Cogs(commands.Cog):
             if language == "german":
                 if message.author.guild_permissions.ban_members:
                     res = await self.client.wait_for('button_click')
-                    m = await message.send(f"Bist du dir sicher das du {args1.name} entbannen willst?", components=button2)
+                    m = await message.send(f"Bist du dir sicher das du {args1.name} entbannen willst?",
+                                           components=button2)
                     if res.component.label == "Ja":
                         await message.delete(m)
                         embed = discord.Embed(title="Unbanned", color=discord.Color.green())
                         embed.add_field(name="Unbanned Person", value=f"{args1.name} | {args1.id}", inline=True)
                         embed.add_field(name="Unbanned by", value=message.author.mention, inline=True)
+                        embed.set_footer(text="Shouganari ©")
                         await message.guild.unban(args1)
                         await message.send(embed=embed)
                     if res.component.label == "Nein":
@@ -496,6 +521,7 @@ class Cogs(commands.Cog):
                         embed = discord.Embed(title="Unbanned", color=discord.Color.green())
                         embed.add_field(name="Unbanned Person", value=f"{args1.name} | {args1.id}", inline=True)
                         embed.add_field(name="Unbanned by", value=message.author.mention, inline=True)
+                        embed.set_footer(text="Shouganari ©")
                         await message.guild.unban(args1)
                         await message.send(embed=embed)
                     if res.component.label == "No":
@@ -508,5 +534,6 @@ class Cogs(commands.Cog):
                     await message.send("You don't have enough **Permissions** to do that Command\n"
                                        "````Required Permissions = Ban Members```")
 
+
 def setup(client):
-    client.add_cog(Cogs(client))
+    client.add_cog(Admin(client))
