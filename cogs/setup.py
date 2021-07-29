@@ -1,14 +1,14 @@
-from discord.ext import commands
-import discord
+import asyncio
 import datetime
+
+import discord
+from discord.ext import commands
 from discord_components import (
-    DiscordComponents,
-    Button,
-    ButtonStyle,
     Select,
     SelectOption)
-from utils.mongo import guild_settings
 
+from utils.emoji import *
+from utils.mongo import guild_settings
 
 
 class Cogs(commands.Cog):
@@ -43,19 +43,38 @@ class Cogs(commands.Cog):
         invite_role = settings["settings"]["invite"]["role1"]
         invite_channel = settings["settings"]["invite"]["channelid"]
         team_role = settings["settings"]["team role"]
+        team__role = discord.utils.get(message.guild.roles, id=team_role)
         if language == "german":
             if message.author.guild_permissions.administrator:
-                embed = discord.Embed(title="Settings",
-                                      description=f"Wenn du etwas ändern willst gebe den Command `edit` ein")
-                embed.add_field(name="Language", value=f"```{language}```", inline=True)
-                embed.add_field(name="Audit Logger",
-                                value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
-                embed.add_field(name="Message Logger",
-                                value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
-                embed.add_field(name="Invite Deleter",
-                                value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
-                                inline=True)
-                embed.add_field(name="Team role", value=f"```<@&{team_role}>```", inline=True)
+                embed = discord.Embed(title=f"Settings {secure}",
+                                      description=f"Wenn du etwas ändern willst gebe den Command **edit** ein")
+                embed.add_field(name=f"Language", value=f"```{language}```", inline=True)
+                if team_role == "None":
+                    embed.add_field(name=f"Team role {staff}", value=f"```{team__role}```", inline=True)
+                if not team_role == "None":
+                    embed.add_field(name=f"Team role {staff}", value=f"```{team__role.name}```", inline=True)
+                embed.add_field(name=f"\u200B", value="\u200B", inline=True)
+                if audit_status == "enable":
+                    embed.add_field(name=f"Audit Logger {on}",
+                                    value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                if audit_status == "disable":
+                    embed.add_field(name=f"Audit Logger {off}",
+                                    value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                if logger_status == "enable":
+                    embed.add_field(name=f"Message Logger {on}",
+                                    value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
+                if logger_status == "disable":
+                    embed.add_field(name=f"Message Logger {off}",
+                                    value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
+                embed.add_field(name=f"\u200B", value="\u200B", inline=True)
+                if invite_status == "enable":
+                    embed.add_field(name=f"Invite Deleter {on}",
+                                    value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                    inline=True)
+                if invite_status == "disable":
+                    embed.add_field(name=f"Invite Deleter {off}",
+                                    value=f"```{invite_status}``` <@&{invite_role}>      <#{invite_channel}>",
+                                    inline=True)
                 embed.timestamp = datetime.datetime.now()
                 embed.set_footer(text=f"Settings von {message.guild.name}", icon_url=message.guild.icon_url)
                 m = await message.send(embed=embed)
@@ -64,24 +83,42 @@ class Cogs(commands.Cog):
                 def check1(m):
                     return m.channel == channel and m.content and m.author == message.author
 
-                msg = await self.client.wait_for('message', check=check1, timeout=120)
+                msg = await self.client.wait_for('message', check=check1)
                 if message.author.id == msg.author.id:
                     if msg.content == "edit":
-                        embed2 = discord.Embed(title="Settings")
-                        embed2.add_field(name="Language", value=f"```{language}```", inline=True)
-                        embed2.add_field(name="Audit Logger",
-                                         value=f"```{audit_status}``` **Channel:** <#{audit_channel}>",
-                                         inline=True)
-                        embed2.add_field(name="Message Logger",
-                                         value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
-                                         inline=True)
-                        embed2.add_field(name="Invite Deleter",
-                                         value=f"```{invite_status}``` **Role:** <@&{invite_role}>",
-                                         inline=True)
-                        embed2.add_field(name="Team role", value=f"```<@&{team_role}>```", inline=True)
-                        embed2.timestamp = datetime.datetime.now()
-                        embed2.set_footer(text=f"Settings von {message.guild.name}",
-                                          icon_url=message.guild.icon_url)
+                        embed2 = discord.Embed(title=f"Settings {secure}")
+                        embed2.add_field(name=f"Language", value=f"```{language}```", inline=True)
+                        if team_role == "None":
+                            embed2.add_field(name=f"Team role {staff}", value=f"```{team_role}```", inline=True)
+                        if not team_role == "None":
+                            embed2.add_field(name=f"Team role {staff}", value=f"```{team__role.name}```", inline=True)
+                        embed2.add_field(name=f"\u200B", value="\u200B", inline=True)
+                        if audit_status == "enable":
+                            embed2.add_field(name=f"Audit Logger {on}",
+                                            value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                        if audit_status == "disable":
+                            embed2.add_field(name=f"Audit Logger {off}",
+                                            value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                        if logger_status == "enable":
+                            embed2.add_field(name=f"Message Logger {on}",
+                                            value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
+                                            inline=True)
+                        if logger_status == "disable":
+                            embed2.add_field(name=f"Message Logger {off}",
+                                            value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
+                                            inline=True)
+                        embed2.add_field(name=f"\u200B", value="\u200B", inline=True)
+                        if invite_status == "enable":
+                            embed2.add_field(name=f"Invite Deleter {on}",
+                                            value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                            inline=True)
+                        if invite_status == "disable":
+                            embed2.add_field(name=f"Invite Deleter {off}",
+                                            value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                            inline=True)
+                        embed.timestamp = datetime.datetime.now()
+                        embed.set_footer(text=f"Settings von {message.guild.name}", icon_url=message.guild.icon_url)
+
                         await channel.purge(limit=1)
                         await m.edit(embed=embed2, components=[Select(placeholder="Was willst du bearbeiten?",
                                                                       options=[SelectOption(label="Sprache",
@@ -131,14 +168,15 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                channel = self.client.get_channel(int(msg2.content))
                                 if channel is not None:
-                                    settings["settings"]["logger"]["channelid"] = msg2.content
+                                    settings["settings"]["logger"]["channelid"] = int(msg2.content)
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-
+                                    await message.send(f"Der Channel wurde auf <#{msg2.content}>")
                                 if channel is None:
-                                    await message.send("Diesen Channel gibt es nicht")
+                                    await message.send(f"Diesen Channel gibt es nicht")
+                                await asyncio.sleep(10)
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Audit Logger Settings", options=[
@@ -159,13 +197,16 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check1, timeout=120.00)
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                channel = self.client.get_channel(int(msg2.content))
                                 if channel is not None:
-                                    settings["settings"]["audit"]["channelid"] = msg2.content
+                                    settings["settings"]["audit"]["channelid"] = int(msg2.content)
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                    await message.send(f"Der Channel wurde auf <#{msg2.content}> gesetzt")
+
                                 if channel is None:
-                                    await message.send("Diesen Channel gibt es nicht")
+                                    await message.send(f"Diesen Channel gibt es nicht")
+                                await asyncio.sleep(10)
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings", options=[
@@ -188,63 +229,80 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                role = discord.utils.get(message.guild.roles, id=msg2.content)
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                role = discord.utils.get(message.guild.roles, id=int(msg2.content))
                                 if role is not None:
                                     settings["settings"]["invite"]["role1"] = msg2.content
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                    await message.send(f"Die Rolle wurde auf <@&{msg2.content}>")
                                 if role is None:
-                                    await message.send("Diese Rolle gibt es nicht!")
-
+                                    await message.send(f"Diese Rolle gibt es nicht")
+                                await asyncio.sleep(10)
                             if interaction2.component[0].label == "Report Channel":
                                 await message.send("Bitte schicke die Channel ID hier rein")
 
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
+                                msg2 = await self.client.wait_for('message', check=check2)
 
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
-                                if channel is not None:
-                                    settings["settings"]["invite"]["channelid"] = msg2.content
-                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                if channel is None:
-                                    await message.send("Diesen Channel gibt es nicht!")
-                        if interaction.component[0].label == "Team Role":
-                            def check2(m):
-                                return m.channel == channel and m.content and m.author == message.author
-
-                            await message.send("Bitte schicke die Role id hier in den Chat")
-                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                            if channel is not None:
-                                settings["settings"]["invite"]["role1"] = msg2.content
+                                settings["settings"]["invite"]["channelid"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                            if channel is None:
-                                await message.send("Diese Rolle gibt es nicht")
-                            settings["settings"]["team role"] = msg2.content
-                            await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                await message.send(f"Der Channel wurde auf <#{msg2.content}>")
+                                await asyncio.sleep(10)
+                        if interaction.component[0].label == "Team Role":
+                                def check2(m):
+                                    return m.channel == channel and m.content and m.author == message.author
+
+                                await message.send("Bitte schicke die Role id hier in den Chat")
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                role = discord.utils.get(message.guild.roles, id=int(msg2.content))
+                                if role is not None:
+                                    settings["settings"]["team role"] = int(msg2.content)
+                                    await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                    await message.send(f"Die Team role ist jetzt <@&{msg2.content}>")
+                                if role is None:
+                                    await message.send(f"Diesen Channel gibt es nicht")
+                                await asyncio.sleep(10)
 
                         await message.channel.purge(limit=1)
                         await message.reinvoke(restart=True)
 
             if not message.author.guild_permissions.administrator:
                 await message.send("Du hast nicht genug Berechtigungen für diesen Command\n"
-                                   "```Benötigte Berechtigungen = Adminstator```")
+                                   "```Benötigte Berechtigungen = Administrator```")
 
         if language == "english":
             if message.author.guild_permissions.administrator:
-                embed = discord.Embed(title="Settings",
-                                      description=f"If you want to change something use `edit`")
-                embed.add_field(name="Language", value=f"```{language}```", inline=True)
-                embed.add_field(name="Audit Logger",
-                                value=f"```{audit_status}``` **Channel:** <#{audit_channel}>",
-                                inline=True)
-                embed.add_field(name="Message Logger",
-                                value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
-                embed.add_field(name="Invite Deleter",
-                                value=f"```{invite_status}``` **Role:** <@&{invite_role}>",
-                                inline=True)
-                embed.add_field(name="Team role", value=f"```<@&{team_role}>```", inline=True)
+                embed = discord.Embed(title=f"Settings {secure}",
+                                      description=f"If you want to change something use **edit**")
+                embed.add_field(name=f"Language", value=f"```{language}```", inline=True)
+                if team_role == "None":
+                    embed.add_field(name=f"Team role {staff}", value=f"```{team_role}```", inline=True)
+                if not team_role == "None":
+                    embed.add_field(name=f"Team role {staff}", value=f"```<{team__role.name}>```", inline=True)
+                embed.add_field(name=f"\u200B", value="\u200B", inline=True)
+                if audit_status == "enable":
+                    embed.add_field(name=f"Audit Logger {on}",
+                                    value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                if audit_status == "disable":
+                    embed.add_field(name=f"Audit Logger {off}",
+                                    value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                if logger_status == "enable":
+                    embed.add_field(name=f"Message Logger {on}",
+                                    value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
+                if logger_status == "disable":
+                    embed.add_field(name=f"Message Logger {off}",
+                                    value=f"```{logger_status}``` **Channel:** <#{logger_channel}>", inline=True)
+                embed.add_field(name=f"\u200B", value="\u200B", inline=True)
+                if invite_status == "enable":
+                    embed.add_field(name=f"Invite Deleter {on}",
+                                    value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                    inline=True)
+                if invite_status == "disable":
+                    embed.add_field(name=f"Invite Deleter {off}",
+                                    value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                    inline=True)
                 embed.timestamp = datetime.datetime.now()
                 embed.set_footer(text=f"Settings of {message.guild.name}", icon_url=message.guild.icon_url)
                 m = await message.send(embed=embed)
@@ -253,24 +311,41 @@ class Cogs(commands.Cog):
                 def check1(m):
                     return m.channel == channel and m.content and m.author == message.author
 
-                msg = await self.client.wait_for('message', check=check1, timeout=120.00)
+                msg = await self.client.wait_for('message', check=check1)
                 if message.author.id == msg.author.id:
                     if msg.content == "edit":
-                        embed2 = discord.Embed(title="Settings")
-                        embed2.add_field(name="Language", value=f"```{language}```", inline=True)
-                        embed2.add_field(name="Audit Logger",
-                                         value=f"```{audit_status}``` **Channel:** <#{audit_channel}>",
-                                         inline=True)
-                        embed2.add_field(name="Message Logger",
-                                         value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
-                                         inline=True)
-                        embed2.add_field(name="Invite Deleter",
-                                         value=f"```{invite_status}``` **Role:** <@&{invite_role}>",
-                                         inline=True)
-                        embed2.add_field(name="Team role", value=f"```<@&{team_role}>```", inline=True)
-                        embed2.timestamp = datetime.datetime.now()
-                        embed2.set_footer(text=f"Settings of {message.guild.name}",
-                                          icon_url=message.guild.icon_url)
+                        embed2 = discord.Embed(title=f"Settings {secure}")
+                        embed2.add_field(name=f"Language", value=f"```{language}```", inline=True)
+                        if team_role == "None":
+                            embed2.add_field(name=f"Team role {staff}", value=f"```{team_role}```", inline=True)
+                        if not team_role == "None":
+                            embed2.add_field(name=f"Team role {staff}", value=f"```{team__role.name}```", inline=True)
+                        embed2.add_field(name=f"\u200B", value="\u200B", inline=True)
+                        if audit_status == "enable":
+                            embed2.add_field(name=f"Audit Logger {on}",
+                                             value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                        if audit_status == "disable":
+                            embed2.add_field(name=f"Audit Logger {off}",
+                                             value=f"```{audit_status}``` **Channel:** <#{audit_channel}>", inline=True)
+                        if logger_status == "enable":
+                            embed2.add_field(name=f"Message Logger {on}",
+                                             value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
+                                             inline=True)
+                        if logger_status == "disable":
+                            embed2.add_field(name=f"Message Logger {off}",
+                                             value=f"```{logger_status}``` **Channel:** <#{logger_channel}>",
+                                             inline=True)
+                        embed2.add_field(name=f"\u200B", value="\u200B", inline=True)
+                        if invite_status == "enable":
+                            embed2.add_field(name=f"Invite Deleter {on}",
+                                             value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                             inline=True)
+                        if invite_status == "disable":
+                            embed2.add_field(name=f"Invite Deleter {off}",
+                                             value=f"```{invite_status}``` **Role:** <@&{invite_role}>      <#{invite_channel}>",
+                                             inline=True)
+                        embed.timestamp = datetime.datetime.now()
+                        embed.set_footer(text=f"Settings of {message.guild.name}", icon_url=message.guild.icon_url)
                         await channel.purge(limit=1)
                         await m.edit(embed=embed2, components=[Select(placeholder="What do you want to edit?",
                                                                       options=[SelectOption(label="Language",
@@ -322,13 +397,15 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                channel = self.client.get_channel(int(msg2.content))
                                 if channel is not None:
-                                    settings["settings"]["logger"]["channelid"] = msg2.content
+                                    settings["settings"]["logger"]["channelid"] = int(msg2.content)
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                    await message.send(f"The Logger Channel got Set to <#{msg2.content}>")
                                 if channel is None:
                                     await message.send("This Channel doesn't exist")
+                                await asyncio.sleep(10)
                         if interaction.component[0].label == "Audit Logger":
                             await message.send(embed=embed,
                                                components=[Select(placeholder="Audit Logger Settings",
@@ -353,13 +430,15 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                channel = self.client.get_channel(int(msg2.content))
                                 if channel is not None:
-                                    settings["settings"]["audit"]["channelid"] = msg2.content
+                                    settings["settings"]["audit"]["channelid"] = int(msg2.content)
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                    await message.send(f"The Channel got set to <#{msg2.content}>")
                                 if channel is None:
-                                    await message.send("This Channel doesn't exist")
+                                    await message.send("This Channel doesnt exist")
+                                await asyncio.sleep(10)
                         if interaction.component[0].label == "Invite Deleter":
                             await message.send(embed=embed, components=[
                                 Select(placeholder="Invite Deleter Settings",
@@ -368,7 +447,8 @@ class Cogs(commands.Cog):
                                            SelectOption(label="Disable",
                                                         value="Deactivate the Invite Deleter"),
                                            SelectOption(label="Ignored Role",
-                                                        value="Select the Role who can send Links")])])
+                                                        value="Select the Role who can send Links"),
+                                            SelectOption(label="Report Channel", value="The Channel the people who send the links get reportet")])])
                             interaction2 = await self.client.wait_for("select_option")
                             if interaction2.component[0].label == "Enable":
                                 settings["settings"]["invite"]["status"] = "enable"
@@ -384,47 +464,50 @@ class Cogs(commands.Cog):
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
-                                msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
-                                if channel is not None:
-                                    settings["settings"]["invite"]["role1"] = msg2.content
+                                msg2 = await self.client.wait_for('message', check=check2)
+                                role = discord.utils.get(message.guild.roles, id=int(msg2.content))
+                                if role is not None:
+                                    settings["settings"]["invite"]["role1"] = int(msg2.content)
                                     await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                                if channel is None:
-                                    await message.send("This Role doesn’t exist")
+                                    await message.send(f"The Ignored Role got set to <@&{int(msg2.content)}>")
+                                if role is None:
+                                    await message.send(f"This role doesn't exist")
+                                await asyncio.sleep(10)
                             if interaction2.component[0].label == "Report Channel":
-                                await message.send("Bitte schicke die Channel ID hier rein")
+                                await message.send("Pls enter the Channel ID")
 
                                 def check2(m):
                                     return m.channel == channel and m.content and m.author == message.author
 
                                 msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-
-                                channel = discord.utils.get(message.guild.text_channels, id=msg2.content)
+                                channel = self.client.get_channel(int(msg2.channel))
                                 if channel is not None:
-                                    settings["settings"]["invite"]["channelid"] = msg2.content
                                     await guild_settings.update_one({"_id": int(message.guild.id)},
                                                                     {'$set': settings})
-                                    if channel is None:
-                                        await message.send("Diesen Channel gibt es nicht!")
+                                    await message.send(f"The Channel got set to <#{msg2.content}>")
+                                if channel is None:
+                                    await message.send("This Channel doesn't exist")
+                                await asyncio.sleep(10)
                         if interaction.component[0].label == "Team Role":
                             def check2(m):
                                 return m.channel == channel and m.content and m.author == message.author
 
                             await message.send("Pls enter the Role ID of the Server Team Role")
-                            msg2 = await self.client.wait_for('message', check=check2, timeout=120.00)
-                            if channel is not None:
-                                settings["settings"]["invite"]["role1"] = msg2.content
+                            msg2 = await self.client.wait_for('message', check=check2)
+                            role = discord.utils.get(message.guild.roles, id=int(msg2.content))
+                            if role is not None:
+                                settings["settings"]["team role"] = msg2.content
                                 await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
-                            if channel is None:
-                                await message.send("This Role doesn’t exist")
-                            settings["settings"]["team role"] = msg2.content
-                            await guild_settings.update_one({"_id": int(message.guild.id)}, {'$set': settings})
+                                await message.send(f"The Team role got set to <@&{msg2.content}>")
+                            if role is None:
+                                await message.send(f"This role doesn't exist")
+                            await asyncio.sleep(10)
 
                         await message.channel.purge(limit=1)
                         await message.reinvoke(restart=True)
             if not message.author.guild_permissions.administrator:
                 await message.send("You dont't have enough Permissions to do this command\n"
-                                   "```Required Permissions: Adminstator```")
+                                   "```Required Permissions: Administrator```")
 
 
 def setup(client):
