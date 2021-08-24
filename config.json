@@ -1,0 +1,45 @@
+{"bot": {
+  "Bot-Token" : "ODY3MTA4NjczMTQ2ODQ3Mjcy.YPcT4Q.rLWqFTDwzQwGm_7HLiBqZS9Wxcg",
+  "client-id": "867108673146847272",
+  "client-secret":  "G2qMlzKSapOcUNyGu0w_Sl0T-WFgWPL2",
+  "top.gg-token" : "None",
+  "webhook-status-id": "876169939357147226",
+  "webhook-status-token": "8GLoMsVuIaDJk_kyDpgCreax7lTb41FBOyQPxOGo_xA4NSPggi6bkcmgdYlIybPCzSiC",
+  "webhook-stats-id": "870347924910010428",
+  "webhook-stats-token": "dvxG1k4YJyRtlyP5_W0q2nejOGe_r7xaw822X1VmpAdWqHkCCkdg5Y6YZM9AfLLj9nG5",
+  "save":  "False"},
+
+
+
+  "twitter" : {
+    "consumer-key" : "Y5K0vzADtchaKxa1TBSU2dUPg",
+    "consumer-secret" : "UKziDOlhJNgpqYN69HZpZXl1ptvqLo0Owbu3Lsl4P4yh5IxvXk",
+    "Bearer-token": "AAAAAAAAAAAAAAAAAAAAADW7SgEAAAAAQms3Xl1OY2D%2B1GymzEj9dWO7z78%3D4aBJOjY262r6piP1BuV619KC7McWr5zjC6RQzsrqhOtval1W83",
+    "token" : "1418362852323250178-PcNIhNVG3xh0Rqwti19Mki0OWaqdxP",
+    "token-secret" : "YyES1BoL6WBCG2h00Sfd7QiXlxBQstFVFfWTUVfD4D0p5"
+  },
+
+  "db": {
+    "cluster" : "mongodb+srv://Bot:Qf5v3JU76PPVmnLW@database.jle90.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+  },
+
+  "colors": {
+    "error" : "16711680", "Main": "16777215"
+  },
+  "emoji": {
+    "on" : "<:on:870376486148923392>", "off": "<:off:870376486257954826>", "github": "<:github:868169388560359434>", "staff": "<:staff:867907835546959912>",
+    "dot_on": "<:dot_on:870376510232616970>", "dot_off": "<:dot_off:870376510106779708>", "trashcan": "<:trashcan:867907835354152980>", "dev": "<:dev:858768525534691348>",
+    "discordPartner": "<:discordPartner:867907835173666836>", "Error": "<:error:876200667197341757>", "loading": "<:loading:867907835260960799>", "secure": "<:secure:867907835815526421>",
+    "grow" : "<:grow:876203613482024970>", "announcment": "<:announcment:876203734223454219>", "attachment": "<:attachment:876203719790825532>", "people": "<:people:876203667450105957>",
+    "HeadPhones": "<:HeadPhones:876203613347774556>", "text": "<:text:876203592200101920>", "notification": "<:notification:876204043427516456>", "pin": "<:pin:876203655156600922>",
+    "voice": "<:voice:876203655223721984>", "channel": "<:channel:876203751160037448>", "store": "<:store:876203592422416414>"
+  },
+  "links": {
+    "Support-Server": "https://discord.gg/SZKyRbZDT6", "Vote-Link": "https://top.gg/none", "Invite-Link": "https://discord.com", "Shouganari-Links": "https://solo.to/shouganari"
+  },
+  "devs" : [437669166216904715],
+  "badges" : {
+    "dev": "858768525534691348", "staff": "867907835546959912", "friend": "876562722534334474", "star": "867907835843977226", "partner": "876563863506665482", "EarlySupporter": "876563712562040952",
+    "bughunter1": "876564125264805889", "bughunter2": "876564115957645333"
+  }
+}
