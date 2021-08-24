@@ -1,0 +1,8 @@
+discord.py
+tweepy
+motor
+dnspython
+discord-components
+pillow
+emoji
+psutil
