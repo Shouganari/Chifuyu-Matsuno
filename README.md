@@ -1,12 +1,16 @@
-# Chifuyu-Matsuno
+### Chifuyu-Matsuno
 The Source Code to the Bot Chifuyu Matsuno
 
-# Requierements
+# How to Self Host
+set your Token in the config.json
 
-Python 3.8
+# Install the Packages
+```py
+pip install -r requirements.txt
+```
 
-Discord.py
+# Run the bot
 
-Discord-Components
-
-Motor (MongoDB)
+````py
+python launcher.py
+```
