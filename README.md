@@ -2,7 +2,7 @@
 The Source Code to the Bot Chifuyu Matsuno
 
 ## How to Self Host
-set your Token in the config.json
+First set your Token in the config.json
 
 ### Install the Packages
 ```py
