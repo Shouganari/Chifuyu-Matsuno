@@ -11,6 +11,6 @@ pip install -r requirements.txt
 
 # Run the bot
 
-````py
+```py
 python launcher.py
 ```
