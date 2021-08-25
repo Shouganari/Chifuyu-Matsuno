@@ -1,5 +1,5 @@
 # Chifuyu-Matsuno
-The Source Code to the Bot Chifuyu Matsuno
+The Source Code to the Bot Chifuyu Matsuno, this is only for Educational Purpose
 
 ## How to Self Host
 First set your Token in the config.json
